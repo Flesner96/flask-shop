@@ -1,6 +1,6 @@
 from flask import Flask, redirect, render_template, request
 from connection import connect_to_db
-from logic.products import get_products
+from logic.products import get_products, insert_product
 from logic.clients import get_clients
 from logic.orders import get_orders
 
@@ -30,18 +30,7 @@ def create_product():
         price = request.form["price"]
         rating = request.form["rating"]
 
-        query = """
-            INSERT INTO products (name, description, price, rating)
-            VALUES (%s, %s, %s, %s);
-        """
-        try:
-            with connect_to_db() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(query, (name, description, price, rating))
-                conn.commit()
-        except Exception as e:
-            return f"❌ Error adding product: {e}"
-
+        insert_product(name, description, price, rating)
         return redirect("/products")
     return render_template("add_product.html")
 
@@ -50,16 +39,7 @@ def create_client():
     if request.method == "POST":
         first_name = request.form["first_name"]
         last_name = request.form["last_name"]
-
-        query = "INSERT INTO client (name, surname) VALUES (%s, %s);"
-        try:
-            with connect_to_db() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(query, (first_name, last_name))
-                conn.commit()
-        except Exception as e:
-            return f"❌ Error adding client: {e}"
-
+        insert_client(first_name, last_name)
         return redirect("/clients")
     return render_template("add_client.html")
 
@@ -68,16 +48,7 @@ def create_order():
     if request.method == "POST":
         client_id = request.form["client_id"]
         order_details = request.form["order_details"]
-
-        query = "INSERT INTO orders (customer_id, order_details) VALUES (%s, %s);"
-        try:
-            with connect_to_db() as conn:
-                with conn.cursor() as cursor:
-                    cursor.execute(query, (client_id, order_details))
-                conn.commit()
-        except Exception as e:
-            return f"❌ Error adding order: {e}"
-
+        insert_order(client_id, order_details)
         return redirect("/orders")
     return render_template("add_order.html")
 

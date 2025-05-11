@@ -29,3 +29,10 @@ def get_clients():
     except Exception as e:
         print("❌ Error fetching clients:", e)
         return []
+
+def insert_client(first_name, last_name):
+    query = "INSERT INTO client (name, surname) VALUES (%s, %s);"
+    with connect_to_db() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query, (first_name, last_name))
+        conn.commit()

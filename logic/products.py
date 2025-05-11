@@ -33,3 +33,13 @@ def get_products():
     except Exception as e:
         print("❌ Error fetching products:", e)
         return []
+    
+def insert_product(name, description, price, rating):
+    query = """
+        INSERT INTO products (name, description, price, rating)
+        VALUES (%s, %s, %s, %s)
+    """
+    with connect_to_db() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query, (name, description, price, rating))
+        conn.commit()

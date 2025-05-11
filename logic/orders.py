@@ -34,3 +34,10 @@ def get_orders():
     except Exception as e:
         print("❌ Error fetching orders:", e)
         return []
+    
+def insert_order(client_id, order_details):
+    query = "INSERT INTO orders (customer_id, order_details) VALUES (%s, %s);"
+    with connect_to_db() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query, (client_id, order_details))
+        conn.commit()
