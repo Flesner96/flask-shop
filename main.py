@@ -1,4 +1,6 @@
-
+from logic.clients import add_client, get_clients
+from logic.products import add_product, get_products
+from logic.orders import add_order, get_orders
 
 interface = """
 1 - Show products
