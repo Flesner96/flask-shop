@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block title %}Clients{% endblock %}
+{% block content %}
+<h1 class="text-xl font-bold mb-4">Clients</h1>
+<a href="/add_client" class="text-blue-600 underline mb-4 inline-block">+ Add Client</a>
+<table class="min-w-full bg-white border">
+  <thead class="bg-gray-100">
+    <tr>
+      <th class="px-4 py-2">ID</th>
+      <th class="px-4 py-2">First Name</th>
+      <th class="px-4 py-2">Last Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in clients %}
+    <tr class="border-t">
+      <td class="px-4 py-2">{{ c[0] }}</td>
+      <td class="px-4 py-2">{{ c[1] }}</td>
+      <td class="px-4 py-2">{{ c[2] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

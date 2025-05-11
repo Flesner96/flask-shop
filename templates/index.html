@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}Home - Flask Shop{% endblock %}
+
+{% block content %}
+  <h1 class="text-2xl font-bold mb-4">Welcome to Flask Shop</h1>
+  <p>Select a section:</p>
+  <ul class="mt-4 list-disc list-inside">
+    <li><a class="text-blue-600 underline" href="/products">View Products</a></li>
+    <li><a class="text-blue-600 underline" href="/clients">View Clients</a></li>
+    <li><a class="text-blue-600 underline" href="/orders">View Orders</a></li>
+  </ul>
+{% endblock %}

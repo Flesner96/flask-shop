@@ -1,0 +1,10 @@
+{% extends "layout.html" %}
+{% block title %}Add Client{% endblock %}
+{% block content %}
+<h1 class="text-xl font-bold mb-4">Add Client</h1>
+<form method="post" class="space-y-4">
+  <input type="text" name="first_name" placeholder="First Name" class="w-full p-2 border rounded" required>
+  <input type="text" name="last_name" placeholder="Last Name" class="w-full p-2 border rounded" required>
+  <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Add Client</button>
+</form>
+{% endblock %}

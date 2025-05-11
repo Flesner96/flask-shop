@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<h1 class="text-xl font-bold mb-4">Products</h1>
+<a href="/add_product" class="text-blue-600 underline mb-4 inline-block">+ Add Product</a>
+<table class="min-w-full bg-white border">
+  <thead class="bg-gray-100">
+    <tr>
+      <th class="px-4 py-2">ID</th>
+      <th class="px-4 py-2">Name</th>
+      <th class="px-4 py-2">Description</th>
+      <th class="px-4 py-2">Price</th>
+      <th class="px-4 py-2">Rating</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in products %}
+    <tr class="border-t">
+      <td class="px-4 py-2">{{ p[0] }}</td>
+      <td class="px-4 py-2">{{ p[1] }}</td>
+      <td class="px-4 py-2">{{ p[2] }}</td>
+      <td class="px-4 py-2">{{ p[3] }}</td>
+      <td class="px-4 py-2">{{ p[4] }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
