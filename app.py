@@ -1,8 +1,8 @@
 from flask import Flask, redirect, render_template, request
 from connection import connect_to_db
 from logic.products import get_products, insert_product
-from logic.clients import get_clients
-from logic.orders import get_orders
+from logic.clients import get_clients, insert_client
+from logic.orders import get_orders, insert_order
 
 app = Flask(__name__)
 
