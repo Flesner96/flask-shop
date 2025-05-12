@@ -3,14 +3,22 @@
 {% block content %}
 <h1 class="text-xl font-bold mb-4">Dashboard</h1>
 
-<div class="grid grid-cols-3 gap-4 mb-6">
-  <div class="bg-blue-100 p-4 rounded">🛒 Products: {{ product_count }}</div>
-  <div class="bg-green-100 p-4 rounded">👤 Clients: {{ client_count }}</div>
-  <div class="bg-yellow-100 p-4 rounded">📦 Orders: {{ order_count }}</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+  <div class="bg-blue-600 text-white p-4 rounded shadow">
+    <div class="text-2xl font-bold">{{ product_count }}</div>
+    <div class="text-sm">🛒 Products</div>
+  </div>
+  <div class="bg-green-600 text-white p-4 rounded shadow">
+    <div class="text-2xl font-bold">{{ client_count }}</div>
+    <div class="text-sm">👤 Clients</div>
+  </div>
+  <div class="bg-yellow-500 text-white p-4 rounded shadow">
+    <div class="text-2xl font-bold">{{ order_count }}</div>
+    <div class="text-sm">📦 Orders</div>
+  </div>
 </div>
 
 <div class="flex flex-wrap gap-4 my-6">
-  <!-- Left column: Latest & Best Rated Products -->
   <div class="w-full md:w-[40%] flex flex-col gap-4">
     <div class="bg-white border rounded p-4">
       <h2 class="font-bold text-lg mb-2">Latest Product Added</h2>
@@ -35,19 +43,17 @@
       {% endif %}
     </div>
   </div>
-
-  <!-- Right column: Recent Orders -->
   <div class="w-full md:w-[58%] bg-white border rounded p-4">
     <h2 class="text-lg font-semibold mb-2">Recent Orders</h2>
-    <table class="min-w-full text-sm">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="px-4 py-2">ID</th>
-          <th class="px-4 py-2">Client</th>
-          <th class="px-4 py-2">Details</th>
-          <th class="px-4 py-2">Date</th>
-        </tr>
-      </thead>
+    <table class="min-w-full text-sm border rounded overflow-hidden shadow bg-white">
+  <thead class="bg-gray-100 text-left">
+    <tr>
+      <th class="px-4 py-2">ID</th>
+      <th class="px-4 py-2">Client</th>
+      <th class="px-4 py-2">Details</th>
+      <th class="px-4 py-2">Date</th>
+    </tr>
+  </thead>
       <tbody>
         {% for o in recent_orders %}
         <tr class="border-t">
@@ -62,60 +68,62 @@
   </div>
 </div>
 <div class="flex flex-wrap gap-4 mt-8 justify-between">
-  <div class="w-full md:w-[45%] bg-white p-4 rounded shadow">
+  <div id="ordersChartApp" class="w-full md:w-[48%] bg-white p-4 rounded shadow h-[350px]">
     <h2 class="text-lg font-semibold mb-2">📈 Orders Per Day</h2>
-    <canvas id="ordersChart" class="max-h-[300px]"></canvas>
+    <div class="flex justify-end mb-2">
+  <button
+    @click="chartType = 'bar'"
+    :disabled="isRendering || chartType === 'bar'"
+    :class="[
+      'px-3 py-1 rounded-l transition-colors duration-200',
+      chartType === 'bar' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800',
+      isRendering ? 'opacity-50 cursor-not-allowed' : ''
+    ]">
+    Bar
+  </button>
+  <button
+    @click="chartType = 'line'"
+    :disabled="isRendering || chartType === 'line'"
+    :class="[
+      'px-3 py-1 rounded-r transition-colors duration-200',
+      chartType === 'line' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-800',
+      isRendering ? 'opacity-50 cursor-not-allowed' : ''
+    ]">
+    Line
+  </button>
+</div>
+    <div id="ordersChartWrapper">
+      <canvas id="ordersChart" class="max-h-[300px]"></canvas>
+    </div>
   </div>
-  <div class="w-full md:w-[45%] bg-white p-4 rounded shadow">
+  <div class="w-full md:w-[48%] bg-white p-4 rounded shadow h-[350px]">
     <h2 class="text-lg font-semibold mb-2">👥 Top Clients by Orders</h2>
     <canvas id="clientsChart" class="max-h-[300px]"></canvas>
   </div>
 </div>
 <script>
-  const ordersLabels = {{ orders_per_day | map(attribute=0) | list | tojson }};
-  const ordersCounts = {{ orders_per_day | map(attribute=1) | list | tojson }};
+const ordersLabels = {{ orders_per_day | map(attribute=0) | list | tojson }};
+const ordersCounts = {{ orders_per_day | map(attribute=1) | list | tojson }};
+const clientsLabels = {{ top_clients | map(attribute=0) | list | tojson }};
+const clientsCounts = {{ top_clients | map(attribute=1) | list | tojson }};
 
-  const clientsLabels = {{ top_clients | map(attribute=0) | list | tojson }};
-  const clientsCounts = {{ top_clients | map(attribute=1) | list | tojson }};
-
- new Chart(document.getElementById('ordersChart'), {
-  type: 'bar',
-  data: {
-    labels: {{ orders_per_day | map(attribute=0) | list | tojson }},
-    datasets: [{
-      data: {{ orders_per_day | map(attribute=1) | list | tojson }},
-      backgroundColor: [
-        '#003f5c', '#2f4b7c', '#665191', '#a05195', '#d45087',
-        '#f95d6a', '#ff7c43', '#ffa600'
-      ],
-      borderRadius: 6,
-      barThickness: 40
-    }]
-  },
-  options: {
-    plugins: {
-      legend: { display: false }
-    },
-    scales: {
-      y: { beginAtZero: true, ticks: { stepSize: 1 } }
-    }
-  }
-});
-
-  new Chart(document.getElementById('clientsChart'), {
+// Static clients chart
+new Chart(document.getElementById('clientsChart'), {
   type: 'doughnut',
   data: {
-    labels: {{ top_clients | map(attribute=0) | list | tojson }},
+    labels: clientsLabels,
     datasets: [{
-      data: {{ top_clients | map(attribute=1) | list | tojson }},
+      data: clientsCounts,
       backgroundColor: [
         '#003f5c', '#2f4b7c', '#665191', '#a05195', '#d45087',
         '#f95d6a', '#ff7c43', '#ffa600'
       ],
-      cutout: '30%'  // Controls donut hole size
+      cutout: '30%'
     }]
   },
   options: {
+    responsive: true,
+    maintainAspectRatio: false,
     plugins: {
       legend: {
         position: 'right',
@@ -124,5 +132,78 @@
     }
   }
 });
+
+// Vue-powered orders chart with safety lock
+Vue.createApp({
+  data() {
+    return {
+      chartType: 'bar',
+      chart: null,
+      isRendering: false
+    }
+  },
+  watch: {
+    chartType() {
+      if (!this.isRendering) {
+        this.rebuildChart();
+      }
+    }
+  },
+  mounted() {
+    this.renderChart();
+  },
+  methods: {
+    async rebuildChart() {
+      this.isRendering = true;
+
+      if (this.chart) {
+        this.chart.destroy();
+      }
+
+      // Replace canvas
+      const wrapper = document.getElementById('ordersChartWrapper');
+      wrapper.innerHTML = '<canvas id="ordersChart"></canvas>';
+
+      // Wait for DOM update
+      await this.$nextTick();
+      this.renderChart();
+
+      // Safety buffer before allowing another toggle
+      setTimeout(() => {
+        this.isRendering = false;
+      }, 300);  // prevent double toggle within 300ms
+    },
+    renderChart() {
+      const ctx = document.getElementById('ordersChart');
+      if (!ctx) return;
+
+      this.chart = new Chart(ctx, {
+        type: this.chartType,
+        data: {
+          labels: ordersLabels,
+          datasets: [{
+            data: ordersCounts,
+            backgroundColor: '#60a5fa',
+            borderColor: '#3b82f6',
+            borderWidth: 2,
+            fill: this.chartType === 'line',
+            tension: 0.3
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { precision: 0, stepSize: 1 }
+            }
+          }
+        }
+      });
+    }
+  }
+}).mount('#ordersChartApp');
 </script>
 {% endblock %}

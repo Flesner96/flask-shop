@@ -5,6 +5,7 @@
     <title>{% block title %}Flask Shop{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 </head>
 <body class="bg-gray-100 text-gray-900">
     {% if session.logged_in %}
@@ -17,20 +18,26 @@
     </nav>
     {% endif %}
     <main class="p-6">
-        {% with messages = get_flashed_messages(with_categories=true) %}
+   {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
-    <ul class="mb-4">
+    <div class="space-y-2 mb-4">
       {% for category, message in messages %}
-        <li class="p-2 rounded text-sm mb-2
-            {% if category == 'error' %}bg-red-100 text-red-700
-            {% elif category == 'success' %}bg-green-100 text-green-700
-            {% endif %}">
+        <div class="p-4 rounded-lg text-white shadow
+          {% if category == 'success' %}bg-green-500
+          {% elif category == 'error' %}bg-red-500
+          {% else %}bg-blue-500
+          {% endif %}">
           {{ message }}
-        </li>
+        </div>
       {% endfor %}
-    </ul>
+    </div>
   {% endif %}
 {% endwith %}
+<script>
+  setTimeout(() => {
+    document.querySelectorAll('.flash-message').forEach(el => el.remove());
+  }, 4000);
+</script>
         {% block content %}{% endblock %}
     </main>
 </body>
