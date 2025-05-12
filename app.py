@@ -51,11 +51,13 @@ def api_login_required(route_func):
 
 
 @app.route("/")
+@login_required
 def index():
     return render_template("index.html")
 
 
 @app.route("/products")
+@login_required
 def show_products():
     name = request.args.get("name")
     min_price = request.args.get("min_price", type=float)
@@ -80,6 +82,7 @@ def show_products():
 
 
 @app.route("/clients")
+@login_required
 def show_clients():
     first_name = request.args.get("first_name", "")
     last_name = request.args.get("last_name", "")
@@ -102,6 +105,7 @@ def show_clients():
 
 
 @app.route("/orders")
+@login_required
 def show_orders():
     client_id = request.args.get("client_id", type=int)
     date = request.args.get("date")

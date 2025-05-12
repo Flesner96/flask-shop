@@ -6,17 +6,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 text-gray-900">
+    {% if session.logged_in %}
     <nav class="bg-blue-600 p-4 text-white flex gap-4">
     <a href="/">Home</a>
     <a href="/products">Products</a>
     <a href="/clients">Clients</a>
     <a href="/orders">Orders</a>
-    {% if session.logged_in %}
-        <a href="/logout" class="ml-auto">Logout</a>
-    {% else %}
-        <a href="/login" class="ml-auto">Login</a>
+    <a href="/logout" class="ml-auto">Logout</a>
+    </nav>
     {% endif %}
-</nav>
     <main class="p-6">
         {% with messages = get_flashed_messages(with_categories=true) %}
   {% if messages %}
