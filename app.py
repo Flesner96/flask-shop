@@ -1,5 +1,5 @@
 from functools import wraps
-from flask import Flask, flash, redirect, render_template, request, session
+from flask import Flask, flash, jsonify, redirect, render_template, request, session
 from logic.products import count_products, delete_product_by_id, get_product_by_id, get_products, insert_product, search_products, update_product
 from logic.clients import count_clients, get_clients, insert_client, search_clients
 from logic.orders import count_orders, get_orders, insert_order, search_orders
@@ -272,6 +272,63 @@ def delete_product(product_id):
         flash(f"Error deleting product: {e}", "error")
     return redirect("/products")
 
+
+@app.route("/api/products")
+def api_products():
+    name = request.args.get("name")
+    min_price = request.args.get("min_price", type=float)
+    max_price = request.args.get("max_price", type=float)
+
+    products = search_products(name, min_price, max_price, limit=1000, offset=0)
+
+    product_list = [
+        {
+            "id": p[0],
+            "name": p[1],
+            "description": p[2],
+            "price": float(p[3]),
+            "rating": float(p[4]) if p[4] is not None else None
+        }
+        for p in products
+    ]
+    return jsonify(product_list)
+
+
+@app.route("/api/clients")
+def api_clients():
+    first_name = request.args.get("first_name")
+    last_name = request.args.get("last_name")
+
+    clients = search_clients(first_name, last_name, limit=1000, offset=0)
+
+    client_list = [
+        {
+            "id": c[0],
+            "first_name": c[1],
+            "last_name": c[2]
+        }
+        for c in clients
+    ]
+    return jsonify(client_list)
+
+
+@app.route("/api/orders")
+def api_orders():
+    client_id = request.args.get("client_id", type=int)
+    date = request.args.get("date")
+
+    orders = search_orders(client_id, date, limit=1000, offset=0)
+
+    order_list = [
+        {
+            "id": o[0],
+            "client_id": o[1],
+            "details": o[2],
+            "created_at": o[3].isoformat() if o[3] else None
+        }
+        for o in orders
+    ]
+    return jsonify(order_list)
 
 if __name__ == "__main__":
     app.run(debug=True)
