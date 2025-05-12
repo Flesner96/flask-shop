@@ -1,27 +1,52 @@
-from flask import Flask, flash, redirect, render_template, request
+from functools import wraps
+from flask import Flask, flash, redirect, render_template, request, session
 from logic.products import get_products, insert_product
 from logic.clients import get_clients, insert_client
 from logic.orders import get_orders, insert_order
 
 app = Flask(__name__)
+app.secret_key = "your_secret_key_here"  
+
+
+@app.route("/logout")
+def logout():
+    session.pop("logged_in", None)
+    flash("Logged out.", "success")
+    return redirect("/login")
+
+
+def login_required(route_func):
+    @wraps(route_func)
+    def wrapper(*args, **kwargs):
+        if not session.get("logged_in"):
+            flash("Login required to access this page.", "error")
+            return redirect("/login")
+        return route_func(*args, **kwargs)
+    return wrapper
+
 
 @app.route("/")
 def index():
     return render_template("index.html")
 
+
 @app.route("/products")
 def show_products():
     return render_template("products.html", products=get_products())
+
 
 @app.route("/clients")
 def show_clients():
     return render_template("clients.html", clients=get_clients())
 
+
 @app.route("/orders")
 def show_orders():
     return render_template("orders.html", orders=get_orders())
 
+
 @app.route("/add_product", methods=["GET", "POST"])
+@login_required
 def create_product():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
@@ -31,7 +56,6 @@ def create_product():
 
         errors = []
 
-        # Validate required fields
         if not name:
             errors.append("Product name is required.")
         if not price:
@@ -53,7 +77,6 @@ def create_product():
                 flash(error, "error")
             return render_template("add_product.html", name=name, description=description)
 
-        # Insert into DB
         try:
             insert_product(name, description, price, rating)
             flash("Product added successfully!", "success")
@@ -64,7 +87,9 @@ def create_product():
 
     return render_template("add_product.html")
 
+
 @app.route("/add_client", methods=["GET", "POST"])
+@login_required
 def create_client():
     if request.method == "POST":
         first_name = request.form.get("first_name", "").strip()
@@ -91,7 +116,9 @@ def create_client():
 
     return render_template("add_client.html")
 
+
 @app.route("/add_order", methods=["GET", "POST"])
+@login_required
 def create_order():
     if request.method == "POST":
         client_id = request.form.get("client_id", "").strip()
@@ -123,6 +150,24 @@ def create_order():
             return render_template("add_order.html")
 
     return render_template("add_order.html")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        # Simple check — replace with real auth later
+        if username == "admin" and password == "admin123":
+            session["logged_in"] = True
+            flash("Logged in successfully.", "success")
+            return redirect("/")
+        else:
+            flash("Invalid credentials.", "error")
+
+    return render_template("login.html")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
