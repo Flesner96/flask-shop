@@ -3,6 +3,7 @@
 {% block content %}
 <h1 class="text-xl font-bold mb-4">Products</h1>
 <a href="/add_product" class="text-blue-600 underline mb-4 inline-block">+ Add Product</a>
+<a href="/export/products" class="text-green-600 underline mb-4 inline-block">Export CSV</a>
 <form method="get" class="mb-6 flex gap-4">
   <input type="text" name="name" placeholder="Name" value="{{ name }}" class="p-2 border rounded">
   <input type="number" name="min_price" step="0.01" placeholder="Min Price" value="{{ min_price }}" class="p-2 border rounded">

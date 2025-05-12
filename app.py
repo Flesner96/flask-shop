@@ -1,8 +1,8 @@
 from functools import wraps
-from flask import Flask, flash, jsonify, redirect, render_template, request, session
-from logic.products import count_products, delete_product_by_id, get_product_by_id, insert_product, search_products, update_product
-from logic.clients import count_clients, insert_client, search_clients
-from logic.orders import count_orders,  insert_order, search_orders
+from flask import Flask, Response, flash, jsonify, redirect, render_template, request, session
+from logic.products import count_products, delete_product_by_id, get_product_by_id, get_products, insert_product, search_products, update_product
+from logic.clients import count_clients, get_clients, insert_client, search_clients
+from logic.orders import count_orders, get_orders,  insert_order, search_orders
 from logic.summary import get_best_rated_product, get_counts, get_latest_product, get_orders_per_day, get_recent_orders, get_top_clients
 
 
@@ -361,6 +361,47 @@ def api_orders():
         for o in orders
     ]
     return jsonify(order_list)
+
+
+@app.route("/export/products")
+def export_products():
+    data = get_products()
+    header = ["ID", "Name", "Description", "Price", "Rating"]
+
+    def generate():
+        yield ','.join(header) + '\n'
+        for row in data:
+            yield ','.join(map(str, row)) + '\n'
+
+    return Response(generate(), mimetype="text/csv",
+                    headers={"Content-Disposition": "attachment;filename=products.csv"})
+
+@app.route("/export/clients")
+def export_clients():
+    data = get_clients()
+    header = ["ID", "First Name", "Last Name"]
+
+    def generate():
+        yield ','.join(header) + '\n'
+        for row in data:
+            yield ','.join(map(str, row)) + '\n'
+
+    return Response(generate(), mimetype="text/csv",
+                    headers={"Content-Disposition": "attachment;filename=clients.csv"})
+
+@app.route("/export/orders")
+def export_orders():
+    data = get_orders()
+    header = ["ID", "Customer ID", "Order Details", "Created At"]
+
+    def generate():
+        yield ','.join(header) + '\n'
+        for row in data:
+            yield ','.join(map(str, row)) + '\n'
+
+    return Response(generate(), mimetype="text/csv",
+                    headers={"Content-Disposition": "attachment;filename=orders.csv"})
+
 
 if __name__ == "__main__":
     app.run(debug=True)

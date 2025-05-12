@@ -3,6 +3,7 @@
 {% block content %}
 <h1 class="text-xl font-bold mb-4">Orders</h1>
 <a href="/add_order" class="text-blue-600 underline mb-4 inline-block">+ Add Order</a>
+<a href="/export/orders" class="text-green-600 underline mb-4 inline-block">Export CSV</a>
 <form method="get" class="mb-6 flex gap-4">
   <input type="number" name="client_id" placeholder="Client ID" value="{{ client_id }}" class="p-2 border rounded">
   <input type="date" name="date" value="{{ date }}" class="p-2 border rounded">
