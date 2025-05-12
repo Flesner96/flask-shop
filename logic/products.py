@@ -66,3 +66,46 @@ def delete_product_by_id(product_id):
         with conn.cursor() as cur:
             cur.execute("DELETE FROM products WHERE id = %s", (product_id,))
         conn.commit()
+
+
+def search_products(name=None, min_price=None, max_price=None, limit=10, offset=0):
+    query = "SELECT * FROM products WHERE TRUE"
+    params = []
+
+    if name:
+        query += " AND name ILIKE %s"
+        params.append(f"%{name}%")
+    if min_price:
+        query += " AND price >= %s"
+        params.append(min_price)
+    if max_price:
+        query += " AND price <= %s"
+        params.append(max_price)
+
+    query += " ORDER BY id LIMIT %s OFFSET %s"
+    params.extend([limit, offset])
+
+    with connect_to_db() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query, params)
+            return cursor.fetchall()
+        
+
+def count_products(name=None, min_price=None, max_price=None):
+    query = "SELECT COUNT(*) FROM products WHERE TRUE"
+    params = []
+
+    if name:
+        query += " AND name ILIKE %s"
+        params.append(f"%{name}%")
+    if min_price:
+        query += " AND price >= %s"
+        params.append(min_price)
+    if max_price:
+        query += " AND price <= %s"
+        params.append(max_price)
+
+    with connect_to_db() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query, params)
+            return cursor.fetchone()[0]

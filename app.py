@@ -1,6 +1,6 @@
 from functools import wraps
 from flask import Flask, flash, redirect, render_template, request, session
-from logic.products import delete_product_by_id, get_product_by_id, get_products, insert_product, update_product
+from logic.products import count_products, delete_product_by_id, get_product_by_id, get_products, insert_product, search_products, update_product
 from logic.clients import get_clients, insert_client
 from logic.orders import get_orders, insert_order
 
@@ -49,7 +49,26 @@ def index():
 
 @app.route("/products")
 def show_products():
-    return render_template("products.html", products=get_products())
+    name = request.args.get("name")
+    min_price = request.args.get("min_price", type=float)
+    max_price = request.args.get("max_price", type=float)
+    page = request.args.get("page", 1, type=int)
+    per_page = 5
+    offset = (page - 1) * per_page
+
+    products = search_products(name, min_price, max_price, limit=per_page, offset=offset)
+    total = count_products(name, min_price, max_price)
+    has_next = offset + per_page < total
+
+    return render_template(
+        "products.html",
+        products=products,
+        page=page,
+        name=name or "",
+        min_price=min_price,
+        max_price=max_price,
+        has_next=has_next
+    )
 
 
 @app.route("/clients")
