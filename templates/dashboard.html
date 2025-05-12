@@ -55,4 +55,57 @@
     {% endfor %}
   </tbody>
 </table>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-10">
+  <div class="bg-white border p-4 rounded shadow">
+    <h2 class="font-semibold text-lg mb-2">📈 Orders Per Day</h2>
+    <canvas id="ordersChart"></canvas>
+  </div>
+
+  <div class="bg-white border p-4 rounded shadow">
+    <h2 class="font-semibold text-lg mb-2">👤 Top Clients by Orders</h2>
+    <canvas id="clientsChart"></canvas>
+  </div>
+</div>
+<script>
+  const ordersLabels = {{ orders_per_day | map(attribute=0) | list | tojson }};
+  const ordersCounts = {{ orders_per_day | map(attribute=1) | list | tojson }};
+
+  const clientsLabels = {{ top_clients | map(attribute=0) | list | tojson }};
+  const clientsCounts = {{ top_clients | map(attribute=1) | list | tojson }};
+
+  new Chart(document.getElementById('ordersChart'), {
+    type: 'bar',
+    data: {
+      labels: ordersLabels,
+      datasets: [{
+        label: 'Orders per Day',
+        data: ordersCounts,
+        backgroundColor: 'rgba(59, 130, 246, 0.6)', // Tailwind blue-500
+        borderColor: 'rgba(59, 130, 246, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: { y: { beginAtZero: true } }
+    }
+  });
+
+  new Chart(document.getElementById('clientsChart'), {
+    type: 'bar',
+    data: {
+      labels: clientsLabels,
+      datasets: [{
+        label: 'Order Count',
+        data: clientsCounts,
+        backgroundColor: 'rgba(16, 185, 129, 0.6)', // Tailwind green-500
+        borderColor: 'rgba(16, 185, 129, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      indexAxis: 'y', // Horizontal bars
+      scales: { x: { beginAtZero: true } }
+    }
+  });
+</script>
 {% endblock %}

@@ -54,3 +54,33 @@ def get_best_rated_product():
     best = cursor.fetchone()
     conn.close()
     return best
+
+
+def get_orders_per_day():
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT created_at::date, COUNT(*) 
+        FROM orders 
+        GROUP BY created_at::date 
+        ORDER BY created_at::date
+    """)
+    result = cursor.fetchall()
+    conn.close()
+    return result
+
+
+def get_top_clients(limit=5):
+    conn = connect_to_db()
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT c.name || ' ' || c.surname, COUNT(*) 
+        FROM orders o 
+        JOIN client c ON o.customer_id = c.id 
+        GROUP BY c.id 
+        ORDER BY COUNT(*) DESC 
+        LIMIT %s
+    """, (limit,))
+    result = cursor.fetchall()
+    conn.close()
+    return result
