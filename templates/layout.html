@@ -13,6 +13,20 @@
         <a href="/orders" class="mr-4">Orders</a>
     </nav>
     <main class="p-6">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul class="mb-4">
+      {% for category, message in messages %}
+        <li class="p-2 rounded text-sm mb-2
+            {% if category == 'error' %}bg-red-100 text-red-700
+            {% elif category == 'success' %}bg-green-100 text-green-700
+            {% endif %}">
+          {{ message }}
+        </li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
         {% block content %}{% endblock %}
     </main>
 </body>
