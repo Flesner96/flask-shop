@@ -364,6 +364,7 @@ def api_orders():
 
 
 @app.route("/export/products")
+@login_required
 def export_products():
     data = get_products()
     header = ["ID", "Name", "Description", "Price", "Rating"]
@@ -377,6 +378,7 @@ def export_products():
                     headers={"Content-Disposition": "attachment;filename=products.csv"})
 
 @app.route("/export/clients")
+@login_required
 def export_clients():
     data = get_clients()
     header = ["ID", "First Name", "Last Name"]
@@ -390,6 +392,7 @@ def export_clients():
                     headers={"Content-Disposition": "attachment;filename=clients.csv"})
 
 @app.route("/export/orders")
+@login_required
 def export_orders():
     data = get_orders()
     header = ["ID", "Customer ID", "Order Details", "Created At"]
