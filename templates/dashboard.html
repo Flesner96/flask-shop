@@ -9,61 +9,66 @@
   <div class="bg-yellow-100 p-4 rounded">📦 Orders: {{ order_count }}</div>
 </div>
 
-<div class="grid grid-cols-2 gap-4 my-6">
-  <div class="bg-white border rounded p-4">
-    <h2 class="font-bold text-lg mb-2">Latest Product Added</h2>
-    {% if latest_product %}
-      <p><strong>Name:</strong> {{ latest_product[1] }}</p>
-      <p><strong>Price:</strong> ${{ latest_product[2] }}</p>
-      <p><strong>Rating:</strong> {{ latest_product[3] }}</p>
-      <p><strong>Added:</strong> {{ latest_product[4] }}</p>
-    {% else %}
-      <p>No products found.</p>
-    {% endif %}
+<div class="flex flex-wrap gap-4 my-6">
+  <!-- Left column: Latest & Best Rated Products -->
+  <div class="w-full md:w-[40%] flex flex-col gap-4">
+    <div class="bg-white border rounded p-4">
+      <h2 class="font-bold text-lg mb-2">Latest Product Added</h2>
+      {% if latest_product %}
+        <p><strong>Name:</strong> {{ latest_product[1] }}</p>
+        <p><strong>Price:</strong> ${{ latest_product[2] }}</p>
+        <p><strong>Rating:</strong> {{ latest_product[3] }}</p>
+        <p><strong>Added:</strong> {{ latest_product[4] }}</p>
+      {% else %}
+        <p>No products found.</p>
+      {% endif %}
+    </div>
+
+    <div class="bg-white border rounded p-4">
+      <h2 class="font-bold text-lg mb-2">Best Rated Product</h2>
+      {% if best_product %}
+        <p><strong>Name:</strong> {{ best_product[1] }}</p>
+        <p><strong>Price:</strong> ${{ best_product[2] }}</p>
+        <p><strong>Rating:</strong> {{ best_product[3] }}</p>
+      {% else %}
+        <p>No products found.</p>
+      {% endif %}
+    </div>
   </div>
 
-  <div class="bg-white border rounded p-4">
-    <h2 class="font-bold text-lg mb-2">Best Rated Product</h2>
-    {% if best_product %}
-      <p><strong>Name:</strong> {{ best_product[1] }}</p>
-      <p><strong>Price:</strong> ${{ best_product[2] }}</p>
-      <p><strong>Rating:</strong> {{ best_product[3] }}</p>
-    {% else %}
-      <p>No products found.</p>
-    {% endif %}
+  <!-- Right column: Recent Orders -->
+  <div class="w-full md:w-[58%] bg-white border rounded p-4">
+    <h2 class="text-lg font-semibold mb-2">Recent Orders</h2>
+    <table class="min-w-full text-sm">
+      <thead class="bg-gray-100">
+        <tr>
+          <th class="px-4 py-2">ID</th>
+          <th class="px-4 py-2">Client</th>
+          <th class="px-4 py-2">Details</th>
+          <th class="px-4 py-2">Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for o in recent_orders %}
+        <tr class="border-t">
+          <td class="px-4 py-2">{{ o[0] }}</td>
+          <td class="px-4 py-2">{{ o[2] }} {{ o[3] }}</td>
+          <td class="px-4 py-2">{{ o[4] }}</td>
+          <td class="px-4 py-2">{{ o[5] }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
-
-<h2 class="text-lg font-semibold mb-2">Recent Orders</h2>
-<table class="min-w-full bg-white border">
-  <thead class="bg-gray-100">
-    <tr>
-      <th class="px-4 py-2">ID</th>
-      <th class="px-4 py-2">Client</th>
-      <th class="px-4 py-2">Details</th>
-      <th class="px-4 py-2">Date</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for o in recent_orders %}
-    <tr class="border-t">
-      <td class="px-4 py-2">{{ o[0] }}</td>
-      <td class="px-4 py-2">{{ o[2] }} {{ o[3] }}</td>
-      <td class="px-4 py-2">{{ o[4] }}</td>
-      <td class="px-4 py-2">{{ o[5] }}</td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-<div class="grid grid-cols-1 md:grid-cols-2 gap-6 my-10">
-  <div class="bg-white border p-4 rounded shadow">
-    <h2 class="font-semibold text-lg mb-2">📈 Orders Per Day</h2>
-    <canvas id="ordersChart"></canvas>
+<div class="flex flex-wrap gap-4 mt-8 justify-between">
+  <div class="w-full md:w-[45%] bg-white p-4 rounded shadow">
+    <h2 class="text-lg font-semibold mb-2">📈 Orders Per Day</h2>
+    <canvas id="ordersChart" class="max-h-[300px]"></canvas>
   </div>
-
-  <div class="bg-white border p-4 rounded shadow">
-    <h2 class="font-semibold text-lg mb-2">👤 Top Clients by Orders</h2>
-    <canvas id="clientsChart"></canvas>
+  <div class="w-full md:w-[45%] bg-white p-4 rounded shadow">
+    <h2 class="text-lg font-semibold mb-2">👥 Top Clients by Orders</h2>
+    <canvas id="clientsChart" class="max-h-[300px]"></canvas>
   </div>
 </div>
 <script>
@@ -73,39 +78,51 @@
   const clientsLabels = {{ top_clients | map(attribute=0) | list | tojson }};
   const clientsCounts = {{ top_clients | map(attribute=1) | list | tojson }};
 
-  new Chart(document.getElementById('ordersChart'), {
-    type: 'bar',
-    data: {
-      labels: ordersLabels,
-      datasets: [{
-        label: 'Orders per Day',
-        data: ordersCounts,
-        backgroundColor: 'rgba(59, 130, 246, 0.6)', // Tailwind blue-500
-        borderColor: 'rgba(59, 130, 246, 1)',
-        borderWidth: 1
-      }]
+ new Chart(document.getElementById('ordersChart'), {
+  type: 'bar',
+  data: {
+    labels: {{ orders_per_day | map(attribute=0) | list | tojson }},
+    datasets: [{
+      data: {{ orders_per_day | map(attribute=1) | list | tojson }},
+      backgroundColor: [
+        '#003f5c', '#2f4b7c', '#665191', '#a05195', '#d45087',
+        '#f95d6a', '#ff7c43', '#ffa600'
+      ],
+      borderRadius: 6,
+      barThickness: 40
+    }]
+  },
+  options: {
+    plugins: {
+      legend: { display: false }
     },
-    options: {
-      scales: { y: { beginAtZero: true } }
+    scales: {
+      y: { beginAtZero: true, ticks: { stepSize: 1 } }
     }
-  });
+  }
+});
 
   new Chart(document.getElementById('clientsChart'), {
-    type: 'bar',
-    data: {
-      labels: clientsLabels,
-      datasets: [{
-        label: 'Order Count',
-        data: clientsCounts,
-        backgroundColor: 'rgba(16, 185, 129, 0.6)', // Tailwind green-500
-        borderColor: 'rgba(16, 185, 129, 1)',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      indexAxis: 'y', // Horizontal bars
-      scales: { x: { beginAtZero: true } }
+  type: 'doughnut',
+  data: {
+    labels: {{ top_clients | map(attribute=0) | list | tojson }},
+    datasets: [{
+      data: {{ top_clients | map(attribute=1) | list | tojson }},
+      backgroundColor: [
+        '#003f5c', '#2f4b7c', '#665191', '#a05195', '#d45087',
+        '#f95d6a', '#ff7c43', '#ffa600'
+      ],
+      cutout: '30%'  // Controls donut hole size
+    }]
+  },
+  options: {
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: { boxWidth: 12, padding: 16 }
+      }
     }
-  });
+  }
+});
 </script>
 {% endblock %}
