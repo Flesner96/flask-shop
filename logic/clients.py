@@ -39,7 +39,7 @@ def insert_client(first_name, last_name):
 
 
 def search_clients(first_name=None, last_name=None, limit=10, offset=0):
-    query = "SELECT * FROM clients WHERE TRUE"
+    query = "SELECT * FROM client WHERE TRUE"
     params = []
 
     if first_name:
@@ -59,7 +59,7 @@ def search_clients(first_name=None, last_name=None, limit=10, offset=0):
         
 
 def count_clients(first_name=None, last_name=None):
-    query = "SELECT COUNT(*) FROM clients WHERE TRUE"
+    query = "SELECT COUNT(*) FROM client WHERE TRUE"
     params = []
 
     if first_name:
