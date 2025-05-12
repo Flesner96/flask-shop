@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+{% block title %}Edit Product{% endblock %}
+{% block content %}
+<h1 class="text-xl font-bold mb-4">Edit Product</h1>
+
+<form method="post" class="space-y-4">
+  <input type="text" name="name" value="{{ product.name }}" placeholder="Name" class="w-full p-2 border rounded" required>
+  <input type="text" name="description" value="{{ product.description }}" placeholder="Description" class="w-full p-2 border rounded">
+  <input type="number" name="price" value="{{ product.price }}" step="0.01" min="0" placeholder="Price" class="w-full p-2 border rounded" required>
+  <input type="number" name="rating" value="{{ product.rating }}" step="0.1" min="0" max="5" placeholder="Rating (0–5)" class="w-full p-2 border rounded">
+  <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Update Product</button>
+</form>
+{% endblock %}

@@ -1,11 +1,28 @@
 from functools import wraps
 from flask import Flask, flash, redirect, render_template, request, session
-from logic.products import get_products, insert_product
+from logic.products import delete_product_by_id, get_product_by_id, get_products, insert_product, update_product
 from logic.clients import get_clients, insert_client
 from logic.orders import get_orders, insert_order
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"  
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        # Simple check — replace with real auth later
+        if username == "admin" and password == "admin123":
+            session["logged_in"] = True
+            flash("Logged in successfully.", "success")
+            return redirect("/")
+        else:
+            flash("Invalid credentials.", "error")
+
+    return render_template("login.html")
 
 
 @app.route("/logout")
@@ -152,21 +169,55 @@ def create_order():
     return render_template("add_order.html")
 
 
-@app.route("/login", methods=["GET", "POST"])
-def login():
+@app.route("/edit_product/<int:product_id>", methods=["GET", "POST"])
+@login_required
+def edit_product(product_id):
+    product = get_product_by_id(product_id)  
+    if not product:
+        flash("Product not found.", "error")
+        return redirect("/products")
+
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        name = request.form.get("name", "").strip()
+        description = request.form.get("description", "").strip()
+        price = request.form.get("price", "").strip()
+        rating = request.form.get("rating", "").strip()
 
-        # Simple check — replace with real auth later
-        if username == "admin" and password == "admin123":
-            session["logged_in"] = True
-            flash("Logged in successfully.", "success")
-            return redirect("/")
-        else:
-            flash("Invalid credentials.", "error")
+        errors = []
+        if not name:
+            errors.append("Name is required.")
+        try:
+            price = float(price)
+        except ValueError:
+            errors.append("Price must be a number.")
 
-    return render_template("login.html")
+        if rating:
+            try:
+                rating = float(rating)
+            except ValueError:
+                errors.append("Rating must be a number.")
+
+        if errors:
+            for err in errors:
+                flash(err, "error")
+            return render_template("edit_product.html", product=product)
+
+        update_product(product_id, name, description, price, rating)
+        flash("Product updated.", "success")
+        return redirect("/products")
+
+    return render_template("edit_product.html", product=product)
+
+
+@app.route("/delete_product/<int:product_id>", methods=["POST"])
+@login_required
+def delete_product(product_id):
+    try:
+        delete_product_by_id(product_id)
+        flash("Product deleted.", "success")
+    except Exception as e:
+        flash(f"Error deleting product: {e}", "error")
+    return redirect("/products")
 
 
 if __name__ == "__main__":

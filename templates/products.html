@@ -11,6 +11,7 @@
       <th class="px-4 py-2">Description</th>
       <th class="px-4 py-2">Price</th>
       <th class="px-4 py-2">Rating</th>
+      <th class="px-4 py-2">Actions</th> <!-- 👈 new column -->
     </tr>
   </thead>
   <tbody>
@@ -21,6 +22,12 @@
       <td class="px-4 py-2">{{ p[2] }}</td>
       <td class="px-4 py-2">{{ p[3] }}</td>
       <td class="px-4 py-2">{{ p[4] }}</td>
+      <td class="px-4 py-2">
+        <a href="/edit_product/{{ p[0] }}" class="text-blue-600 mr-2">Edit</a>
+        <form method="POST" action="/delete_product/{{ p[0] }}" class="inline">
+          <button type="submit" class="text-red-600" onclick="return confirm('Delete this product?')">Delete</button>
+        </form>
+      </td>
     </tr>
     {% endfor %}
   </tbody>

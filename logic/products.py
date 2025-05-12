@@ -43,3 +43,26 @@ def insert_product(name, description, price, rating):
         with conn.cursor() as cursor:
             cursor.execute(query, (name, description, price, rating))
         conn.commit()
+
+def get_product_by_id(product_id):
+    with connect_to_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT * FROM products WHERE id = %s", (product_id,))
+            row = cur.fetchone()
+            return dict(zip([desc[0] for desc in cur.description], row)) if row else None
+
+def update_product(product_id, name, description, price, rating):
+    with connect_to_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE products
+                SET name = %s, description = %s, price = %s, rating = %s
+                WHERE id = %s
+            """, (name, description, price, rating, product_id))
+        conn.commit()
+
+def delete_product_by_id(product_id):
+    with connect_to_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM products WHERE id = %s", (product_id,))
+        conn.commit()
