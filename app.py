@@ -2,7 +2,7 @@ from functools import wraps
 from flask import Flask, flash, redirect, render_template, request, session
 from logic.products import count_products, delete_product_by_id, get_product_by_id, get_products, insert_product, search_products, update_product
 from logic.clients import get_clients, insert_client
-from logic.orders import get_orders, insert_order
+from logic.orders import count_orders, get_orders, insert_order, search_orders
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"  
@@ -78,7 +78,24 @@ def show_clients():
 
 @app.route("/orders")
 def show_orders():
-    return render_template("orders.html", orders=get_orders())
+    client_id = request.args.get("client_id", type=int)
+    date = request.args.get("date")
+    page = request.args.get("page", 1, type=int)
+    per_page = 5
+    offset = (page - 1) * per_page
+
+    orders = search_orders(client_id, date, limit=per_page, offset=offset)
+    total = count_orders(client_id, date)
+    has_next = offset + per_page < total
+
+    return render_template(
+        "orders.html",
+        orders=orders,
+        client_id=client_id or "",
+        date=date or "",
+        page=page,
+        has_next=has_next
+    )
 
 
 @app.route("/add_product", methods=["GET", "POST"])

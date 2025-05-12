@@ -3,12 +3,18 @@
 {% block content %}
 <h1 class="text-xl font-bold mb-4">Orders</h1>
 <a href="/add_order" class="text-blue-600 underline mb-4 inline-block">+ Add Order</a>
+<form method="get" class="mb-6 flex gap-4">
+  <input type="number" name="client_id" placeholder="Client ID" value="{{ client_id }}" class="p-2 border rounded">
+  <input type="date" name="date" value="{{ date }}" class="p-2 border rounded">
+  <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded">Filter</button>
+</form>
 <table class="min-w-full bg-white border">
   <thead class="bg-gray-100">
     <tr>
       <th class="px-4 py-2">ID</th>
       <th class="px-4 py-2">Client ID</th>
       <th class="px-4 py-2">Details</th>
+      <th class="px-4 py-2">Created At</th>
     </tr>
   </thead>
   <tbody>
@@ -17,8 +23,18 @@
       <td class="px-4 py-2">{{ o[0] }}</td>
       <td class="px-4 py-2">{{ o[1] }}</td>
       <td class="px-4 py-2">{{ o[2] }}</td>
+      <td class="px-4 py-2">{{ o[3] }}</td>
     </tr>
     {% endfor %}
   </tbody>
 </table>
+<div class="mt-6 flex gap-4">
+  {% if page > 1 %}
+    <a href="?client_id={{ client_id }}&date={{ date }}&page={{ page - 1 }}" class="text-blue-600">Previous</a>
+  {% endif %}
+  <span>Page {{ page }}</span>
+  {% if has_next %}
+    <a href="?client_id={{ client_id }}&date={{ date }}&page={{ page + 1 }}" class="text-blue-600">Next</a>
+  {% endif %}
+</div>
 {% endblock %}
