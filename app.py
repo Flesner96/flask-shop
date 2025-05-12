@@ -1,8 +1,8 @@
 from functools import wraps
 from flask import Flask, flash, jsonify, redirect, render_template, request, session
-from logic.products import count_products, delete_product_by_id, get_product_by_id, get_products, insert_product, search_products, update_product
-from logic.clients import count_clients, get_clients, insert_client, search_clients
-from logic.orders import count_orders, get_orders, insert_order, search_orders
+from logic.products import count_products, delete_product_by_id, get_product_by_id, insert_product, search_products, update_product
+from logic.clients import count_clients, insert_client, search_clients
+from logic.orders import count_orders,  insert_order, search_orders
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"  
@@ -38,6 +38,14 @@ def login_required(route_func):
         if not session.get("logged_in"):
             flash("Login required to access this page.", "error")
             return redirect("/login")
+        return route_func(*args, **kwargs)
+    return wrapper
+
+def api_login_required(route_func):
+    @wraps(route_func)
+    def wrapper(*args, **kwargs):
+        if not session.get("logged_in"):
+            return jsonify({"error": "Unauthorized"}), 401
         return route_func(*args, **kwargs)
     return wrapper
 
@@ -274,6 +282,7 @@ def delete_product(product_id):
 
 
 @app.route("/api/products")
+@api_login_required
 def api_products():
     name = request.args.get("name")
     min_price = request.args.get("min_price", type=float)
@@ -295,6 +304,7 @@ def api_products():
 
 
 @app.route("/api/clients")
+@api_login_required
 def api_clients():
     first_name = request.args.get("first_name")
     last_name = request.args.get("last_name")
@@ -313,6 +323,7 @@ def api_clients():
 
 
 @app.route("/api/orders")
+@api_login_required
 def api_orders():
     client_id = request.args.get("client_id", type=int)
     date = request.args.get("date")
