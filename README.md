@@ -2,6 +2,10 @@
 
 A lightweight internal admin dashboard built with Flask for managing products, clients, and orders. Designed for clarity, maintainability, and responsiveness — perfect for small business back offices or as a full-stack portfolio project.
 
+
+<!-- Dashboard preview image will be added soon -->
+
+
 ---
 
 ## 🚀 Features
